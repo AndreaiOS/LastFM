@@ -201,7 +201,7 @@ open class NetworkClient {
      - returns: a URLSessionDataTask, that you can use to cancel the request at any time.
      */
     @discardableResult
-    open func requestArray<T: NetworkJSONDecodable>(of type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping ([T]) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
+    open func requestSongArray<T: NetworkJSONDecodable>(of type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping ([T]) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
         
         return self.request(request: request,
                             plugins: localPlugins,
@@ -238,9 +238,99 @@ open class NetworkClient {
                                     array.append(parsedObject)
                                 }
                                 
-
                                 onSuccess(array)
-
+        },
+                            onError: { error in
+                                onError(error)
+        }
+        )
+    }
+    
+    @discardableResult
+    open func requestArtistArray<T: NetworkJSONDecodable>(of type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping ([T]) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
+        
+        return self.request(request: request,
+                            plugins: localPlugins,
+                            responseProcessors: localResponseProcessors,
+                            responseValidators: localResponseValidators,
+                            onSuccess: { response in
+                                guard let json = response as? [String: Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let results = json["results"] as? [String:Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let artistMatches = results["artistmatches"] as? [String:Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let artist = artistMatches["artist"] as? [[String:Any]] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                var array = [T]()
+                                
+                                for singleElement in artist {
+                                    guard let parsedObject = T.instantiate(withJSON: singleElement) else {
+                                        onError(NetworkError.invalidParsing)
+                                        return
+                                    }
+                                    array.append(parsedObject)
+                                }
+                                
+                                onSuccess(array)
+        },
+                            onError: { error in
+                                onError(error)
+        }
+        )
+    }
+    
+    @discardableResult
+    open func requestAlbumArray<T: NetworkJSONDecodable>(of type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping ([T]) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
+        
+        return self.request(request: request,
+                            plugins: localPlugins,
+                            responseProcessors: localResponseProcessors,
+                            responseValidators: localResponseValidators,
+                            onSuccess: { response in
+                                guard let json = response as? [String: Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let results = json["results"] as? [String:Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let albumMatches = results["albummatches"] as? [String:Any] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                guard let list = albumMatches["album"] as? [[String:Any]] else {
+                                    onError(NetworkError.invalidParsing)
+                                    return
+                                }
+                                
+                                var array = [T]()
+                                
+                                for singleElement in list {
+                                    guard let parsedObject = T.instantiate(withJSON: singleElement) else {
+                                        onError(NetworkError.invalidParsing)
+                                        return
+                                    }
+                                    array.append(parsedObject)
+                                }
+                                
+                                onSuccess(array)
         },
                             onError: { error in
                                 onError(error)

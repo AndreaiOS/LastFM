@@ -26,7 +26,7 @@ class MainViewController: UIViewController {
         tableView?.dataSource = self
 
         viewModel = MainViewModel()
-        viewModel?.startTest(completion: { (result) in
+        viewModel?.startTest(text: "cher", completion: { (result) in
             if result {
                 self.tableView?.reloadData()
             }
@@ -51,7 +51,12 @@ extension MainViewController: UITableViewDataSource {
         guard let section = MainSection(rawValue: section) else { return 1 }
         
         switch section {
-        default: return (viewModel?.array.count) ?? 0
+        case .Song:
+            return (viewModel?.songArray.count) ?? 0
+        case .Artist:
+            return (viewModel?.artistArray.count) ?? 0
+        case .Album:
+            return (viewModel?.albumArray.count) ?? 0
         }
     }
     
@@ -59,10 +64,12 @@ extension MainViewController: UITableViewDataSource {
         guard let section = MainSection(rawValue: indexPath.section) else { return UITableViewCell() }
         
         switch section {
+        case .Song:
+            return cellForSongSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
+        case .Album:
+            return cellForAlbumSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
         case .Artist:
             return cellForArtistSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
-        default:
-            return UITableViewCell()
         }
     }
     
@@ -71,12 +78,32 @@ extension MainViewController: UITableViewDataSource {
         return section.sectionTitle()
     }
     
+    private func cellForAlbumSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
+        guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
+            return UITableViewCell()
+        }
+        
+        cell.mainLabel?.text = viewModel?.albumArray[indexPath.row].name
+        
+        return cell
+    }
+    
+    private func cellForSongSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
+        guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
+            return UITableViewCell()
+        }
+        
+        cell.mainLabel?.text = viewModel?.songArray[indexPath.row].name
+        
+        return cell
+    }
+    
     private func cellForArtistSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
         guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
             return UITableViewCell()
         }
         
-        cell.mainLabel?.text = viewModel?.array[indexPath.row].name
+        cell.mainLabel?.text = viewModel?.artistArray[indexPath.row].name
         
         return cell
     }
