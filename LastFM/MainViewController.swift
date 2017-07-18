@@ -17,28 +17,16 @@ class MainViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView?
     var viewModel = MainViewModel()
     let disposeBag = DisposeBag()
-    
-    
+    @IBOutlet weak var searchBar: UISearchBar?
+
     override func viewDidLoad() {
-        
-        
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+
         tableView?.delegate = self
-        tableView?.dataSource = nil
-        
-        viewModel.startTest(text: "cher")
-        
         
         if let tableView = tableView {
             viewModel.artistArray.asObservable().subscribe(onNext: { (artist) in
-                print("\(artist)")
-            }, onError: { (error) in
-                
-            }, onCompleted: {
-                
-            }, onDisposed: {
-                
+             
             }).addDisposableTo(disposeBag)
             
             
@@ -51,16 +39,15 @@ class MainViewController: UIViewController {
                 
                 }.addDisposableTo(disposeBag)
         }
-        viewModel.startTest(text: "cher")
         
+        searchBar?
+            .rx.text // Observable property thanks to RxCocoa
+            .orEmpty // Make it non-optional
+            .subscribe(onNext: { [unowned self] query in // Here we will be notified of every new value
+                self.viewModel.startTest(text: query)
+            })
+            .addDisposableTo(disposeBag)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
-            self.viewModel.startTest(text: "eminem")
-        })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
-            self.viewModel.startTest(text: "madonna")
-        })
     }
 }
 

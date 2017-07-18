@@ -69,6 +69,7 @@
                     </view>
                     <navigationItem key="navigationItem" id="gWR-FU-ndK"/>
                     <connections>
+                        <outlet property="searchBar" destination="y8Q-26-5kq" id="rTn-1J-nef"/>
                         <outlet property="tableView" destination="sun-c6-Oq7" id="6Xu-PF-ztx"/>
                         <segue destination="OYs-tD-xyA" kind="show" identifier="toDetail" id="Nf3-SV-Apy"/>
                     </connections>
