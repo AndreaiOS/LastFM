@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import RxCocoa
+import RxSwift
 
 /**
  NetworkClient is a class that is responsible for dispatching Requests,
@@ -276,14 +278,19 @@ open class NetworkClient {
                                 
                                 var array = [T]()
                                 
+                                
                                 for singleElement in artist {
                                     guard let parsedObject = T.instantiate(withJSON: singleElement) else {
                                         onError(NetworkError.invalidParsing)
                                         return
                                     }
+                                    
+                                    // Add artist elements to array
                                     array.append(parsedObject)
+
                                 }
                                 
+
                                 onSuccess(array)
         },
                             onError: { error in

@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 enum MainSection: Int {
     case Artist, Album, Song
@@ -128,55 +130,25 @@ struct GetAlbumByTitle: Request {
 class MainViewModel {
     let client = NetworkClient()
     
-    var artistArray = [Artist]()
-    var albumArray = [Album]()
-    var songArray = [Song]()
+    var artistArray = Variable<[Artist]>([])
+    var albumArray: [Album] = []
+    var songArray: [Song] = []
 
-    func startTest(text: String, completion: @escaping (_ result: Bool) -> Void) {
-        let songRequest = GetSongByTitle(title: text)
-        let albumRequest = GetAlbumByTitle(title: text)
+
+
+    func startTest(text: String) {
+//        let songRequest = GetSongByTitle(title: text)
+//        let albumRequest = GetAlbumByTitle(title: text)
         let artistRequest = GetArtistByName(name: text)
-
-        client
-            .requestSongArray(of: Song.self,
-                               request: songRequest,
-                               onSuccess: { song in
-                                self.songArray = song
-
-//                                completion(true)
-            },
-                               onError: { error in
-                                print("Something went wrong.")
-                                completion(false)
-            }
-        )
         
-        client
-            .requestAlbumArray(of: Album.self,
-                          request: albumRequest,
-                          onSuccess: { album in
-                            self.albumArray = album
-                            
-//                            completion(true)
-            },
-                          onError: { error in
-                            print("Something went wrong.")
-//                            completion(false)
-            }
-        )
-        
-        client
-            .requestArtistArray(of: Artist.self,
-                          request: artistRequest,
-                          onSuccess: { artist in
-                            self.artistArray = artist
-                            
-                            completion(true)
-            },
-                          onError: { error in
-                            print("Something went wrong.")
-//                            completion(false)
-            }
-        )
+
+        client.requestArtistArray(of: Artist.self,
+                                  request: artistRequest,
+                                  onSuccess: { (artist) in                                    
+                                    self.artistArray.value = artist
+        }) { error in
+            
+        }
     }
 }
+

@@ -24,4 +24,10 @@ class ListTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
 
+    // MARK: - Configuration
+    
+    func configure(withViewModel viewModel: CellRepresentable) {
+        mainLabel?.text = viewModel.text
+        accessoryType = viewModel.accessoryType
+    }
 }

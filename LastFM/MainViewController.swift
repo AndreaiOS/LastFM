@@ -8,32 +8,60 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 
 
 class MainViewController: UIViewController {
-
-    @IBOutlet weak var tableView: UITableView?
-    var viewModel: MainViewModel?
     
-
+    @IBOutlet weak var tableView: UITableView?
+    var viewModel = MainViewModel()
+    let disposeBag = DisposeBag()
+    
+    
     override func viewDidLoad() {
         
         
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         tableView?.delegate = self
-        tableView?.dataSource = self
-
-        viewModel = MainViewModel()
-        viewModel?.startTest(text: "cher", completion: { (result) in
-            if result {
-                self.tableView?.reloadData()
-            }
+        tableView?.dataSource = nil
+        
+        viewModel.startTest(text: "cher")
+        
+        
+        if let tableView = tableView {
+            viewModel.artistArray.asObservable().subscribe(onNext: { (artist) in
+                print("\(artist)")
+            }, onError: { (error) in
+                
+            }, onCompleted: {
+                
+            }, onDisposed: {
+                
+            }).addDisposableTo(disposeBag)
+            
+            
+            viewModel.artistArray.asObservable().bind(to: tableView.rx.items(cellIdentifier: "ListTableViewCell", cellType: ListTableViewCell.self)) {
+                (index,model,cell) in
+                
+                let viewModelCell = CellViewModel(artist: model)
+                
+                cell.configure(withViewModel: viewModelCell)
+                
+                }.addDisposableTo(disposeBag)
+        }
+        viewModel.startTest(text: "cher")
+        
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
+            self.viewModel.startTest(text: "eminem")
+        })
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0, execute: {
+            self.viewModel.startTest(text: "madonna")
         })
     }
-    
-
 }
 
 extension MainViewController: UITableViewDelegate {
@@ -42,70 +70,50 @@ extension MainViewController: UITableViewDelegate {
     }
 }
 
-extension MainViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return MainSection.count()
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let section = MainSection(rawValue: section) else { return 1 }
-        
-        switch section {
-        case .Song:
-            return (viewModel?.songArray.count) ?? 0
-        case .Artist:
-            return (viewModel?.artistArray.count) ?? 0
-        case .Album:
-            return (viewModel?.albumArray.count) ?? 0
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let section = MainSection(rawValue: indexPath.section) else { return UITableViewCell() }
-        
-        switch section {
-        case .Song:
-            return cellForSongSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
-        case .Album:
-            return cellForAlbumSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
-        case .Artist:
-            return cellForArtistSectionForRowAtIndexPath(indexPath: indexPath as NSIndexPath)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard let section = MainSection(rawValue: section) else { return "" }
-        return section.sectionTitle()
-    }
-    
-    private func cellForAlbumSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
-        guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
-            return UITableViewCell()
-        }
-        
-        cell.mainLabel?.text = viewModel?.albumArray[indexPath.row].name
-        
-        return cell
-    }
-    
-    private func cellForSongSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
-        guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
-            return UITableViewCell()
-        }
-        
-        cell.mainLabel?.text = viewModel?.songArray[indexPath.row].name
-        
-        return cell
-    }
-    
-    private func cellForArtistSectionForRowAtIndexPath(indexPath: NSIndexPath) -> UITableViewCell {
-        guard let cell = tableView?.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath as IndexPath) as? ListTableViewCell else {
-            return UITableViewCell()
-        }
-        
-        cell.mainLabel?.text = viewModel?.artistArray[indexPath.row].name
-        
-        return cell
-    }
-    
-}
+//extension MainViewController: UITableViewDataSource {
+//    func numberOfSections(in tableView: UITableView) -> Int {
+//        return MainSection.count()
+//    }
+//
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        guard let section = MainSection(rawValue: section) else { return 1 }
+//
+//        switch section {
+//        case .Song:
+//            return (viewModel?.songArray.count) ?? 0
+//        case .Artist:
+//            return (viewModel?.artistArray.count) ?? 0
+//        case .Album:
+//            return (viewModel?.albumArray.count) ?? 0
+//        }
+//    }
+//
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        guard let section = MainSection(rawValue: indexPath.section) else { return UITableViewCell() }
+//
+//        var viewModelCell: CellRepresentable?
+//        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: indexPath) as? ListTableViewCell else { fatalError("Unexpected Table View Cell")
+//        }
+//
+//
+//        switch section {
+//        case .Song:
+//            viewModelCell = CellViewModel(song: viewModel?.songArray[indexPath.row])
+//        case .Album:
+//            viewModelCell = CellViewModel(album: viewModel?.albumArray[indexPath.row])
+//        case .Artist:
+//            viewModelCell = CellViewModel(artist: viewModel?.artistArray[indexPath.row])
+//        }
+//
+//        if let viewModelCell = viewModelCell {
+//            cell.configure(withViewModel: viewModelCell)
+//        }
+//
+//        return cell
+//    }
+//
+//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+//        guard let section = MainSection(rawValue: section) else { return "" }
+//        return section.sectionTitle()
+//    }
+//}
