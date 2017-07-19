@@ -7,7 +7,8 @@ target 'LastFM' do
     
     pod 'RxSwift',    '~> 3.0'
     pod 'RxCocoa',    '~> 3.0'
-    
+    pod 'RxDataSources', '~> 1.0'
+
     target 'LastFMTests' do
         inherit! :search_paths
         pod 'RxBlocking', '~> 3.0'

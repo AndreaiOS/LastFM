@@ -160,28 +160,28 @@ open class NetworkClient {
      
      - returns: a URLSessionDataTask, that you can use to cancel the request at any time.
      */
-    @discardableResult
-    open func requestObject<T:NetworkJSONDecodable>(ofType type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping (T) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
-        return self.request(request: request,
-                            plugins: localPlugins,
-                            responseProcessors: localResponseProcessors,
-                            responseValidators: localResponseValidators,
-                            onSuccess: { response in
-                                guard let json = response as? [String: Any] else {
-                                    onError(NetworkError.invalidParsing)
-                                    return
-                                }
-                                guard let parsedObject = T.instantiate(withJSON: json) else {
-                                    onError(NetworkError.invalidParsing)
-                                    return
-                                }
-                                onSuccess(parsedObject)
-        },
-                            onError: { error in
-                                onError(error)
-        }
-        )
-    }
+//    @discardableResult
+//    open func requestObject<T:NetworkJSONDecodable>(ofType type: T.Type, request: Request, plugins localPlugins: [NetworkPlugin] = [], responseProcessors localResponseProcessors: [NetworkResponseProcessor] = [], responseValidators localResponseValidators: [NetworkResponseValidator] = [], onSuccess: @escaping (T) -> Void, onError: @escaping (Error) -> Void) -> URLSessionDataTask? {
+//        return self.request(request: request,
+//                            plugins: localPlugins,
+//                            responseProcessors: localResponseProcessors,
+//                            responseValidators: localResponseValidators,
+//                            onSuccess: { response in
+//                                guard let json = response as? [String: Any] else {
+//                                    onError(NetworkError.invalidParsing)
+//                                    return
+//                                }
+//                                guard let parsedObject = T.instantiate(withJSON: json) else {
+//                                    onError(NetworkError.invalidParsing)
+//                                    return
+//                                }
+//                                onSuccess(parsedObject)
+//        },
+//                            onError: { error in
+//                                onError(error)
+//        }
+//        )
+//    }
     
     /**
      Dispatches the Request using the NetworkEngine and then parses the response using NetworkJSONDecodable protocol to get an array of the given type.

@@ -13,18 +13,18 @@ struct CellViewModel: CellRepresentable {
     var text: String
     var accessoryType: UITableViewCellAccessoryType
     
-    init(song: Song?) {
-        text = song?.name ?? ""
-        accessoryType = UITableViewCellAccessoryType.none
-    }
+//    init(song: Song?) {
+//        text = song?.name ?? ""
+//        accessoryType = UITableViewCellAccessoryType.none
+//    }
     
     init(artist: Artist?) {
         text = artist?.name ?? ""
         accessoryType = UITableViewCellAccessoryType.none
     }
     
-    init(album: Album?) {
-        text = album?.name ?? ""
-        accessoryType = UITableViewCellAccessoryType.none
-    }
+//    init(album: Album?) {
+//        text = album?.name ?? ""
+//        accessoryType = UITableViewCellAccessoryType.none
+//    }
 }

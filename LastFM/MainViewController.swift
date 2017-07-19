@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import RxDataSources
 
 
 
@@ -18,27 +19,73 @@ class MainViewController: UIViewController {
     var viewModel = MainViewModel()
     let disposeBag = DisposeBag()
     @IBOutlet weak var searchBar: UISearchBar?
+    
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView?.delegate = self
+        
+        let dataSource = RxTableViewSectionedAnimatedDataSource<ArtistSection>()
+        dataSource.animationConfiguration = AnimationConfiguration(insertAnimation: .top,
+                                                                   reloadAnimation: .fade,
+                                                                   deleteAnimation: .left)
+
+//        dataSource.configureCell = { ds, tv, ip, item in
+//            let cell = tv.dequeueReusableCell(withIdentifier: "ListTableViewCell") ?? UITableViewCell(style: .default, reuseIdentifier: "ListTableViewCell")
+//            cell.textLabel?.text = "Item \(item)"
+//            
+//            return cell
+//        }
+//        dataSource.titleForHeaderInSection = { ds, index in
+//            return ds.sectionModels[index].header
+//        }
+        
+        dataSource.configureCell = { (dataSource, table, idxPath, item) in
+            let cell = table.dequeueReusableCell(withIdentifier: "ListTableViewCell", for: idxPath)
+            
+            cell.textLabel?.text = "\(item.name)"
+            
+            return cell
+        }
+        
+        dataSource.titleForHeaderInSection = { (ds, section) -> String? in
+            return ds[section].header
+        }
+
         
         if let tableView = tableView {
-            viewModel.artistArray.asObservable().subscribe(onNext: { (artist) in
-             
-            }).addDisposableTo(disposeBag)
+        
+
             
+            viewModel.sections.asObservable()
+
+                .bind(to: tableView.rx.items(dataSource: dataSource))
+
+                .addDisposableTo(disposeBag)
             
-            viewModel.artistArray.asObservable().bind(to: tableView.rx.items(cellIdentifier: "ListTableViewCell", cellType: ListTableViewCell.self)) {
-                (index,model,cell) in
-                
-                let viewModelCell = CellViewModel(artist: model)
-                
-                cell.configure(withViewModel: viewModelCell)
-                
-                }.addDisposableTo(disposeBag)
+            tableView.rx.setDelegate(self)
+                .addDisposableTo(disposeBag)
+            
         }
+        viewModel.dataSource = dataSource
+
+//
+//        if let tableView = tableView {
+//            viewModel.artistArray.asObservable().subscribe(onNext: { (artist) in
+//             
+//            }).addDisposableTo(disposeBag)
+//            
+//            
+//            viewModel.artistArray.asObservable().bind(to: tableView.rx.items(cellIdentifier: "ListTableViewCell", cellType: ListTableViewCell.self)) {
+//                (index,model,cell) in
+//                
+//                let viewModelCell = CellViewModel(artist: model)
+//                
+//                cell.configure(withViewModel: viewModelCell)
+//                
+//                }.addDisposableTo(disposeBag)
+//        }
         
         searchBar?
             .rx.text // Observable property thanks to RxCocoa
