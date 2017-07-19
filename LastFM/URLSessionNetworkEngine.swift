@@ -54,7 +54,7 @@ public struct URLSessionEngine: NetworkEngine {
             return nil
         }
         
-        guard let body = try? JSONSerialization.data(withJSONObject: request.parameters, options: JSONSerialization.WritingOptions.prettyPrinted) else {
+        guard let body = try? JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions.prettyPrinted) else {
             throw NetworkError.invalidParameters
         }
         
